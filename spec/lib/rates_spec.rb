@@ -21,7 +21,7 @@ describe SpreeShipwire::Rates do
                                                         {item: 'bag', quantity: 2}])
                                           .and_return(rate)
 
-      expect(rate).to receive(:send).and_return([])
+      expect(rate).to receive(:send).and_return(Faraday::Response.new)
       expect(rate).to receive(:parse_response)
       expect(rate).to receive(:shipping_quotes)
                         .and_return(:quotes)

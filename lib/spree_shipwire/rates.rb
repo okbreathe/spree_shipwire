@@ -29,6 +29,8 @@ private
   end
 
   def raise_if_invalid(response)
+    return if response.is_a?(Faraday::Response)
+
     messages = response.join(', ')
 
     raise SpreeShipwire::ConnectionError.new(messages) if response.include?('Unable to connect to Shipwire')
