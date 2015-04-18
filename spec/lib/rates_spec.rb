@@ -34,9 +34,17 @@ describe SpreeShipwire::Rates do
     it "raises when unable to connect" do
       expect(Shipwire::ShippingRate).to receive(:new).and_return(rate)
 
-      expect(rate).to receive(:send).and_return(['Unable to get shipping rates from Shipwire'])
+      expect(rate).to receive(:send).and_return(['Unable to connect to Shipwire'])
 
       expect{SpreeShipwire::Rates.compute(address, line_items)}.to raise_error(SpreeShipwire::ConnectionError)
+    end
+
+    it "raises when unable to get shipping rates" do
+      expect(Shipwire::ShippingRate).to receive(:new).and_return(rate)
+
+      expect(rate).to receive(:send).and_return(['Unable to get shipping rates from Shipwire'])
+
+      expect{SpreeShipwire::Rates.compute(address, line_items)}.to raise_error(SpreeShipwire::RateError)
     end
   end
 end
