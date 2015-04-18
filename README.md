@@ -1,7 +1,10 @@
-SpreeShipwire
+Spree / Shipwire
 =============
 
-Introduction goes here.
+Integrates ShipWire with Spree
+
+- Provides address validation
+- Provides shipping rate integration
 
 Installation
 ------------
@@ -9,7 +12,7 @@ Installation
 Add spree_shipwire to your Gemfile:
 
 ```ruby
-gem 'spree_shipwire'
+gem 'spree_shipwire', github: 'DynamoMTL/spree_shipwire'
 ```
 
 Bundle your dependencies and run the installation generator:
@@ -29,11 +32,4 @@ bundle
 bundle exec rake
 ```
 
-When testing your applications integration with this extension you may use it's factories.
-Simply add this require statement to your spec_helper:
-
-```ruby
-require 'spree_shipwire/factories'
-```
-
-Copyright (c) 2015 [name of extension creator], released under the New BSD License
+Copyright (c) 2015 DynamoMTL, released under the New BSD License
