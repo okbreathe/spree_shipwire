@@ -13,6 +13,10 @@ module SpreeShipwire::Rates
   end
 
 private
+  ADDRESS_WARNING  = 'Could not verify shipping address'
+  CONNECTION_ERROR = 'Unable to connect to Shipwire'
+  RATE_ERROR       = 'Unable to get shipping rates from Shipwire'
+
   def map_address(address)
     {address1: address.address1,
      address2: address.address2,
@@ -33,12 +37,12 @@ private
       xml = Nokogiri::XML(response.body)
       warning = xml.xpath('//Warning').try(:text)
 
-      raise SpreeShipwire::AddressError if warning == 'Could not verify shipping address'
+      raise SpreeShipwire::AddressError if warning == ADDRESS_WARNING
     else
       messages = response.join(', ')
 
-      raise SpreeShipwire::ConnectionError.new(messages) if response.include?('Unable to connect to Shipwire')
-      raise SpreeShipwire::RateError.new(messages) if response.include?('Unable to get shipping rates from Shipwire')
+      raise SpreeShipwire::ConnectionError.new(messages) if response.include?(CONNECTION_ERROR)
+      raise SpreeShipwire::RateError.new(messages) if response.include?(RATE_ERROR)
     end
   end
 end
