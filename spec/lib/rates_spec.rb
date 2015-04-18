@@ -1,32 +1,42 @@
 require 'spec_helper'
 
 describe SpreeShipwire::Rates do
-  it "computes" do
-    address    = create(:address, address1: '123 Main', address2: '#101', city: 'Brooklyn', state: create(:state, abbr: 'NY'), zipcode: '12345')
-    product1   = create(:product, sku: 'shirt')
-    product2   = create(:product, sku: 'bag')
-    line_items = [create(:line_item, quantity: 1, variant: product1.master),
-                  create(:line_item, quantity: 2, variant: product2.master)]
+  let(:address)    { create(:address, address1: '123 Main', address2: '#101', city: 'Brooklyn', state: create(:state, abbr: 'NY'), zipcode: '12345') }
+  let(:product1)   { create(:product, sku: 'shirt') }
+  let(:product2)   { create(:product, sku: 'bag') }
+  let(:line_items) { [create(:line_item, quantity: 1, variant: product1.master),
+                      create(:line_item, quantity: 2, variant: product2.master)] }
+  let(:rate)       { double(:rate) }
 
-    rate = double(:rate)
-    expect(Shipwire::ShippingRate).to receive(:new)
-                                        .with(address: {address1: '123 Main',
-                                                        address2:'#101',
-                                                        city: 'Brooklyn',
-                                                        state: 'NY',
-                                                        country: 'US',
-                                                        zip: '12345'},
-                                              items: [{item: 'shirt', quantity: 1},
-                                                      {item: 'bag', quantity: 2}])
-                                        .and_return(rate)
+  context "computing rate" do
+    it "returns quotes" do
+      expect(Shipwire::ShippingRate).to receive(:new)
+                                          .with(address: {address1: '123 Main',
+                                                          address2:'#101',
+                                                          city: 'Brooklyn',
+                                                          state: 'NY',
+                                                          country: 'US',
+                                                          zip: '12345'},
+                                                items: [{item: 'shirt', quantity: 1},
+                                                        {item: 'bag', quantity: 2}])
+                                          .and_return(rate)
 
-    expect(rate).to receive(:send)
-    expect(rate).to receive(:parse_response)
-    expect(rate).to receive(:shipping_quotes)
-                      .and_return(:quotes)
+      expect(rate).to receive(:send).and_return([])
+      expect(rate).to receive(:parse_response)
+      expect(rate).to receive(:shipping_quotes)
+                        .and_return(:quotes)
 
-    result = SpreeShipwire::Rates.compute(address, line_items)
+      result = SpreeShipwire::Rates.compute(address, line_items)
 
-    expect(result).to eq(:quotes)
+      expect(result).to eq(:quotes)
+    end
+
+    it "raises when unable to connect" do
+      expect(Shipwire::ShippingRate).to receive(:new).and_return(rate)
+
+      expect(rate).to receive(:send).and_return(['Unable to get shipping rates from Shipwire'])
+
+      expect{SpreeShipwire::Rates.compute(address, line_items)}.to raise_error(SpreeShipwire::ConnectionError)
+    end
   end
 end

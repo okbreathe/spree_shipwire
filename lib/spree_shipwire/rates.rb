@@ -5,7 +5,8 @@ module SpreeShipwire::Rates
     rate = Shipwire::ShippingRate.new(address: map_address(address),
                                       items: map_line_items(line_items))
 
-    rate.send
+    response = rate.send
+    raise_if_invalid(response)
     rate.parse_response
 
     rate.shipping_quotes
@@ -25,6 +26,12 @@ private
     line_items.map do |line|
       {item: line.variant.sku, quantity: line.quantity}
     end
+  end
+
+  def raise_if_invalid(response)
+    messages = response.join(', ')
+
+    raise SpreeShipwire::ConnectionError.new(messages) if response.include?('Unable to get shipping rates from Shipwire')
   end
 end
 
