@@ -34,8 +34,7 @@ private
 
   def raise_if_invalid(response)
     if response.is_a?(Faraday::Response)
-      xml = Nokogiri::XML(response.body)
-      warning = xml.xpath('//Warning').try(:text)
+      warning = parse_warning(response)
 
       raise SpreeShipwire::AddressError if warning == ADDRESS_WARNING
     else
@@ -44,6 +43,12 @@ private
       raise SpreeShipwire::ConnectionError.new(messages) if response.include?(CONNECTION_ERROR)
       raise SpreeShipwire::RateError.new(messages) if response.include?(RATE_ERROR)
     end
+  end
+
+  def parse_warning(response)
+    xml = Nokogiri::XML(response.body)
+
+    xml.xpath('//Warning').try(:text)
   end
 end
 
