@@ -29,12 +29,17 @@ private
   end
 
   def raise_if_invalid(response)
-    return if response.is_a?(Faraday::Response)
+    if response.is_a?(Faraday::Response)
+      xml = Nokogiri::XML(response.body)
+      warning = xml.xpath('//Warning').try(:text)
 
-    messages = response.join(', ')
+      raise SpreeShipwire::AddressError if warning == 'Could not verify shipping address'
+    else
+      messages = response.join(', ')
 
-    raise SpreeShipwire::ConnectionError.new(messages) if response.include?('Unable to connect to Shipwire')
-    raise SpreeShipwire::RateError.new(messages) if response.include?('Unable to get shipping rates from Shipwire')
+      raise SpreeShipwire::ConnectionError.new(messages) if response.include?('Unable to connect to Shipwire')
+      raise SpreeShipwire::RateError.new(messages) if response.include?('Unable to get shipping rates from Shipwire')
+    end
   end
 end
 

@@ -21,7 +21,9 @@ describe SpreeShipwire::Rates do
                                                         {item: 'bag', quantity: 2}])
                                           .and_return(rate)
 
-      expect(rate).to receive(:send).and_return(Faraday::Response.new)
+      response = Faraday::Response.new(body: '<Warning></Warning>')
+
+      expect(rate).to receive(:send).and_return(response)
       expect(rate).to receive(:parse_response)
       expect(rate).to receive(:shipping_quotes)
                         .and_return(:quotes)
@@ -45,6 +47,25 @@ describe SpreeShipwire::Rates do
       expect(rate).to receive(:send).and_return(['Unable to get shipping rates from Shipwire'])
 
       expect{SpreeShipwire::Rates.compute(address, line_items)}.to raise_error(SpreeShipwire::RateError)
+    end
+
+    it "raises when address is invalid" do
+      expect(Shipwire::ShippingRate).to receive(:new)
+                                          .with(address: {address1: '123 Main',
+                                                          address2:'#101',
+                                                          city: 'Brooklyn',
+                                                          state: 'NY',
+                                                          country: 'US',
+                                                          zip: '12345'},
+                                                items: [{item: 'shirt', quantity: 1},
+                                                        {item: 'bag', quantity: 2}])
+                                          .and_return(rate)
+
+      response = Faraday::Response.new(body: '<Warning>Could not verify shipping address</Warning>')
+
+      expect(rate).to receive(:send).and_return(response)
+
+      expect{SpreeShipwire::Rates.compute(address, line_items)}.to raise_error(SpreeShipwire::AddressError)
     end
   end
 end
