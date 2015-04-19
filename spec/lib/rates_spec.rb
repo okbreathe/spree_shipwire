@@ -50,6 +50,8 @@ describe SpreeShipwire::Rates do
     end
 
     it "raises when address is invalid" do
+      response = Faraday::Response.new(body: '<Warning>Could not verify shipping address</Warning>')
+
       expect(Shipwire::ShippingRate).to receive(:new)
                                           .with(address: {address1: '123 Main',
                                                           address2:'#101',
@@ -61,7 +63,6 @@ describe SpreeShipwire::Rates do
                                                         {item: 'bag', quantity: 2}])
                                           .and_return(rate)
 
-      response = Faraday::Response.new(body: '<Warning>Could not verify shipping address</Warning>')
 
       expect(rate).to receive(:send).and_return(response)
 
