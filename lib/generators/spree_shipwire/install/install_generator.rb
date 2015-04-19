@@ -6,7 +6,7 @@ module SpreeShipwire
       class_option :auto_run_migrations, type: :boolean, default: false
 
       def add_initializer
-        copy_file 'initializer.rb', 'config/initializers/spree_shipwire.rb'
+        copy_file 'initializer.rb', 'config/initializers/shipwire.rb'
       end
 
       def add_migrations
