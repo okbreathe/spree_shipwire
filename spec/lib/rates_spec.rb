@@ -63,10 +63,18 @@ describe SpreeShipwire::Rates do
                                                         {item: 'bag', quantity: 2}])
                                           .and_return(rate)
 
+      expect(rate).to receive(:send).and_return(response)
+      expect{SpreeShipwire::Rates.compute(address, line_items)}.to raise_error(SpreeShipwire::AddressError)
+    end
+
+    it "raises when sku not found" do
+      response = Faraday::Response.new(body: '<Warning>Unrecognized SKU (item 1)</Warning>')
+
+      expect(Shipwire::ShippingRate).to receive(:new).and_return(rate)
 
       expect(rate).to receive(:send).and_return(response)
 
-      expect{SpreeShipwire::Rates.compute(address, line_items)}.to raise_error(SpreeShipwire::AddressError)
+      expect{SpreeShipwire::Rates.compute(address, line_items)}.to raise_error(SpreeShipwire::UnrecognizedSKUError)
     end
   end
 end

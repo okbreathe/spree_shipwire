@@ -16,6 +16,7 @@ private
   ADDRESS_WARNING  = 'Could not verify shipping address'
   CONNECTION_ERROR = 'Unable to connect to Shipwire'
   RATE_ERROR       = 'Unable to get shipping rates from Shipwire'
+  UNRECOGNIZED_SKU = /Unrecognized SKU/
 
   def map_address(address)
     {address1: address.address1,
@@ -36,7 +37,11 @@ private
     if response.is_a?(Faraday::Response)
       warning = parse_warning(response)
 
-      raise SpreeShipwire::AddressError if warning == ADDRESS_WARNING
+      if warning =~ UNRECOGNIZED_SKU
+        raise SpreeShipwire::UnrecognizedSKUError.new(warning)
+      elsif warning == ADDRESS_WARNING
+        raise SpreeShipwire::AddressError.new(warning)
+      end
     else
       messages = response.join(', ')
 
