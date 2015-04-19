@@ -1,12 +1,11 @@
 require 'spec_helper'
 
 describe SpreeShipwire::Rates do
-  let(:address)    { create(:address, address1: '123 Main', address2: '#101', city: 'Brooklyn', state: create(:state, abbr: 'NY'), zipcode: '12345') }
-  let(:product1)   { create(:product, sku: 'shirt') }
-  let(:product2)   { create(:product, sku: 'bag') }
-  let(:line_items) { [create(:line_item, quantity: 1, variant: product1.master),
-                      create(:line_item, quantity: 2, variant: product2.master)] }
-  let(:rate)       { double(:rate) }
+  let(:address)  { create(:address, address1: '123 Main', address2: '#101', city: 'Brooklyn', state: create(:state, abbr: 'NY'), zipcode: '12345') }
+  let(:product1) { create(:product, sku: 'shirt') }
+  let(:product2) { create(:product, sku: 'bag') }
+  let(:items)    { {product1.master => 1, product2.master => 2} }
+  let(:rate)     { double(:rate) }
 
   context "computing rate" do
     it "returns quotes" do
@@ -28,7 +27,7 @@ describe SpreeShipwire::Rates do
       expect(rate).to receive(:shipping_quotes)
                         .and_return(:quotes)
 
-      result = SpreeShipwire::Rates.compute(address, line_items)
+      result = SpreeShipwire::Rates.compute(address, items)
 
       expect(result).to eq(:quotes)
     end
@@ -38,7 +37,7 @@ describe SpreeShipwire::Rates do
 
       expect(rate).to receive(:send).and_return(['Unable to connect to Shipwire'])
 
-      expect{SpreeShipwire::Rates.compute(address, line_items)}.to raise_error(SpreeShipwire::ConnectionError)
+      expect{SpreeShipwire::Rates.compute(address, items)}.to raise_error(SpreeShipwire::ConnectionError)
     end
 
     it "raises when unable to get shipping rates" do
@@ -46,7 +45,7 @@ describe SpreeShipwire::Rates do
 
       expect(rate).to receive(:send).and_return(['Unable to get shipping rates from Shipwire'])
 
-      expect{SpreeShipwire::Rates.compute(address, line_items)}.to raise_error(SpreeShipwire::RateError)
+      expect{SpreeShipwire::Rates.compute(address, items)}.to raise_error(SpreeShipwire::RateError)
     end
 
     it "raises when address is invalid" do
@@ -64,7 +63,7 @@ describe SpreeShipwire::Rates do
                                           .and_return(rate)
 
       expect(rate).to receive(:send).and_return(response)
-      expect{SpreeShipwire::Rates.compute(address, line_items)}.to raise_error(SpreeShipwire::AddressError)
+      expect{SpreeShipwire::Rates.compute(address, items)}.to raise_error(SpreeShipwire::AddressError)
     end
 
     it "raises when sku not found" do
@@ -74,7 +73,7 @@ describe SpreeShipwire::Rates do
 
       expect(rate).to receive(:send).and_return(response)
 
-      expect{SpreeShipwire::Rates.compute(address, line_items)}.to raise_error(SpreeShipwire::UnrecognizedSKUError)
+      expect{SpreeShipwire::Rates.compute(address, items)}.to raise_error(SpreeShipwire::UnrecognizedSKUError)
     end
   end
 end

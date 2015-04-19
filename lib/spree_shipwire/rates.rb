@@ -1,9 +1,9 @@
 module SpreeShipwire::Rates
   extend self
 
-  def compute(address, line_items=[])
+  def compute(address, items=[])
     rate = Shipwire::ShippingRate.new(address: map_address(address),
-                                      items: map_line_items(line_items))
+                                      items:   map_items(items))
 
     response = rate.send
     raise_if_invalid(response)
@@ -27,9 +27,9 @@ private
      zip:      address.zipcode}
   end
 
-  def map_line_items(line_items)
-    line_items.map do |line|
-      {code: line.variant.sku, quantity: line.quantity}
+  def map_items(items)
+    items.map do |variant, quantity|
+      {code: variant.sku, quantity: quantity}
     end
   end
 
