@@ -17,8 +17,8 @@ describe SpreeShipwire::Rates do
                                                           state: 'NY',
                                                           country: 'US',
                                                           zip: '12345'},
-                                                items: [{item: 'shirt', quantity: 1},
-                                                        {item: 'bag', quantity: 2}])
+                                                items: [{code: 'shirt', quantity: 1},
+                                                        {code: 'bag', quantity: 2}])
                                           .and_return(rate)
 
       response = Faraday::Response.new(body: '<Warning></Warning>')
@@ -59,8 +59,8 @@ describe SpreeShipwire::Rates do
                                                           state: 'NY',
                                                           country: 'US',
                                                           zip: '12345'},
-                                                items: [{item: 'shirt', quantity: 1},
-                                                        {item: 'bag', quantity: 2}])
+                                                items: [{code: 'shirt', quantity: 1},
+                                                        {code: 'bag', quantity: 2}])
                                           .and_return(rate)
 
       expect(rate).to receive(:send).and_return(response)

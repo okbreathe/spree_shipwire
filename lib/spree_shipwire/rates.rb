@@ -29,7 +29,7 @@ private
 
   def map_line_items(line_items)
     line_items.map do |line|
-      {item: line.variant.sku, quantity: line.quantity}
+      {code: line.variant.sku, quantity: line.quantity}
     end
   end
 
