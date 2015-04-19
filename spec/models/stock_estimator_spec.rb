@@ -27,12 +27,14 @@ describe Spree::Stock::Estimator do
         {
           carrier_code: 'FDX2',
           service: 'FedEx CrazyFast',
-          cost: 20.99
+          cost: 20.99,
+          delivery_estimate: {minimum: "1", maximum: "1"}
         },
         {
           carrier_code: 'FDX1',
           service: 'FedEx SuperFast',
-          cost: 10.99
+          cost: 10.99,
+          delivery_estimate: {minimum: "3", maximum: "5"}
         }
       ]
 
@@ -46,13 +48,13 @@ describe Spree::Stock::Estimator do
 
       rate = rates[0]
       expect(rate.carrier_code).to eq('FDX1')
-      expect(rate.name).to eq('FedEx SuperFast')
+      expect(rate.name).to eq('FedEx SuperFast (3-5 days)')
       expect(rate.cost).to eq(10.99)
       expect(rate.selected).to eq(true)
 
       rate = rates[1]
       expect(rate.carrier_code).to eq('FDX2')
-      expect(rate.name).to eq('FedEx CrazyFast')
+      expect(rate.name).to eq('FedEx CrazyFast (1 day)')
       expect(rate.cost).to eq(20.99)
       expect(rate.selected).to eq(false)
     end

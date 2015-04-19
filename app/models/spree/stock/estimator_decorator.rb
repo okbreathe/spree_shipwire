@@ -15,14 +15,28 @@ private
 
     rates = quotes.map do |quote|
       Spree::ShippingRate.new(
+        name:         format_name(quote),
         carrier_code: quote[:carrier_code],
-        name: quote[:service],
-        cost: quote[:cost]
+        cost:         quote[:cost]
       )
     end
 
     choose_default_shipping_rate(rates)
     sort_shipping_rates(rates)
+  end
+
+  def format_name(quote)
+    service  = quote[:service]
+    estimate = quote[:delivery_estimate]
+    min, max = estimate[:minimum].to_i, estimate[:maximum].to_i
+
+    delivery = if min == max
+                 "#{min} #{'day'.pluralize(min)}"
+               else
+                 "#{min}-#{max} days"
+               end
+
+    "#{service} (#{delivery})"
   end
 
   def map_contents(package)
