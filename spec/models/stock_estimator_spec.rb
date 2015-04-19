@@ -51,12 +51,16 @@ describe Spree::Stock::Estimator do
       expect(rate.name).to eq('FedEx SuperFast (3-5 days)')
       expect(rate.cost).to eq(10.99)
       expect(rate.selected).to eq(true)
+      expect(rate.shipping_method).to_not be_nil
+      expect(rate.shipping_method.name).to eq('FedEx SuperFast')
 
       rate = rates[1]
       expect(rate.carrier_code).to eq('FDX2')
       expect(rate.name).to eq('FedEx CrazyFast (1 day)')
       expect(rate.cost).to eq(20.99)
       expect(rate.selected).to eq(false)
+      expect(rate.shipping_method).to_not be_nil
+      expect(rate.shipping_method.name).to eq('FedEx CrazyFast')
     end
   end
 end
