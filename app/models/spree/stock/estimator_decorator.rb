@@ -11,19 +11,26 @@ private
 
   def refresh_shipping_rates(package)
     items = map_contents(package)
-    quotes = SpreeShipwire::Rates.compute(@order.ship_address, items)
 
-    rates = quotes.map do |quote|
-      Spree::ShippingRate.new(
-        name:            format_name(quote),
-        shipping_method: find_shipping_method(quote[:service]),
-        carrier_code:    quote[:carrier_code],
-        cost:            quote[:cost]
-      )
+    begin
+      quotes = SpreeShipwire::Rates.compute(@order.ship_address, items)
+
+      rates = quotes.map do |quote|
+        Spree::ShippingRate.new(
+          name:            format_name(quote),
+          shipping_method: find_shipping_method(quote[:service]),
+          carrier_code:    quote[:carrier_code],
+          cost:            quote[:cost]
+        )
+      end
+
+      choose_default_shipping_rate(rates)
+      sort_shipping_rates(rates)
+    rescue SpreeShipwire::AddressError => e
+      @order.ship_address.update(remote_validation_error: e.message)
+      @order.save
+      []
     end
-
-    choose_default_shipping_rate(rates)
-    sort_shipping_rates(rates)
   end
 
   def find_shipping_method(name)

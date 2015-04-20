@@ -62,5 +62,14 @@ describe Spree::Stock::Estimator do
       expect(rate.shipping_method).to_not be_nil
       expect(rate.shipping_method.name).to eq('FedEx CrazyFast')
     end
+
+    it "catches address errors" do
+      expect(SpreeShipwire::Rates).to receive(:compute)
+                                        .and_raise(SpreeShipwire::AddressError.new('Invalid address'))
+
+      estimator.shipping_rates(package)
+
+      expect(order.ship_address.remote_validation_error).to eq('Invalid address')
+    end
   end
 end
