@@ -19,6 +19,7 @@ private
         Spree::ShippingRate.new(
           name:            format_name(quote),
           shipping_method: find_shipping_method(quote[:service]),
+          code:            quote[:code],
           carrier_code:    quote[:carrier_code],
           cost:            quote[:cost]
         )
